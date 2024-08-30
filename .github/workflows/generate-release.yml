@@ -17,9 +17,11 @@ jobs:
                   node-version: "16" # versão suportada pelo FiveM
 
             - name: Install dependencies
+              working-directory: ./src
               run: npm install
 
             - name: Build project
+              working-directory: ./src
               run: npm run build
 
             - name: Get tag version without "v"
