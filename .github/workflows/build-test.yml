@@ -13,10 +13,11 @@ jobs:
         with:
           node-version: '16.x'
           cache: 'yarn'
-      - name: Install dependencies NUI
+      - name: Clear Yarn Cache
+        run: yarn cache clean
+      - name: Install dependencies
         working-directory: ./src
         run: yarn install --frozen-lockfile
       - name: Build Bundles
         working-directory: ./src
         run: yarn build
-
