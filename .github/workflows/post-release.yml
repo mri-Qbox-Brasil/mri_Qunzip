@@ -29,6 +29,7 @@ jobs:
         RELEASE_TAG: ${{ github.event.release.tag_name }}
         RELEASE_NAME: ${{ github.event.release.name }}
       run: |
+        echo "$COMMITS" &&
         EMBED_DATA='{
             "embeds": [{
             "title": "Nova versão disponível: '"${RELEASE_TAG}"'",
