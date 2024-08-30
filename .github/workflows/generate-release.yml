@@ -30,7 +30,7 @@ jobs:
 
             - name: Update version in file
               run: |
-                  sed -i "s/VERSION_IDENTIFIER/${{ env.VERSION }}/g" fxmanifest.lua
+                  sed -i "s/MRIQBOX_VERSION/${{ env.VERSION }}/g" fxmanifest.lua
 
             - name: Create Release
               uses: softprops/action-gh-release@v1
@@ -50,7 +50,6 @@ jobs:
                 COMMITS=$(git log $CURRENT_TAG --pretty=format:"- %s")
                 echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
-
             - name: Post to Discord (with embed)
               env:
                 DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
@@ -61,7 +60,7 @@ jobs:
               run: |
                 EMBED_DATA='{
                     "embeds": [{
-                    "title": "Nova versão disponível: '"${RELEASE_TAG}"' - '"${RELEASE_NAME}"'",
+                    "title": "Nova versão disponível: '"${env.VERSION}"',
                     "url": "'"${RELEASE_URL}"'",
                     "color": 4243543,
                     "fields": [{

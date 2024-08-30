@@ -14,9 +14,8 @@ jobs:
 
     - name: Get release commits
       run: |
-        # Pegando commits entre a última tag e a atual release
-        LAST_TAG=$(git describe --tags --abbrev=0 HEAD^)
-        COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:"- %s")
+        CURRENT_TAG=${{ github.event.release.tag_name }}
+        COMMITS=$(git log $CURRENT_TAG --pretty=format:"- %s")
         echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
     - name: Post to Discord (with embed)
@@ -28,21 +27,21 @@ jobs:
         RELEASE_NAME: ${{ github.event.release.name }}
       run: |
         EMBED_DATA='{
-          "embeds": [{
-            "title": "Nova versão disponível: '"${RELEASE_TAG}"' - '"${RELEASE_NAME}"'",
+            "embeds": [{
+            "title": "Nova versão disponível: '"${env.VERSION}"',
             "url": "'"${RELEASE_URL}"'",
             "color": 4243543,
             "fields": [{
-              "name": "O que há de novo?",
-              "value": "'"${COMMITS}"'"
+                "name": "O que há de novo?",
+                "value": "'"${COMMITS}"'"
             }],
             "footer": {
-              "text": "MRI QBOX",
-              "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
+                "text": "MRI QBOX",
+                "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
             },
             "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
-          }]
+            }]
         }'
         curl -H "Content-Type: application/json" \
-          -d "$EMBED_DATA" \
-          $DISCORD_WEBHOOK_URL
+            -d "$EMBED_DATA" \
+            $DISCORD_WEBHOOK_URL
