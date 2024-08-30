@@ -36,8 +36,7 @@ jobs:
             # Criar o arquivo ZIP excluindo os diretórios/arquivos especificados
             - name: Create ZIP file
               run: |
-                  REPO_NAME=$(basename -s .git `git config --get remote.origin.url`)
-                  ZIP_NAME="${REPO_NAME}-${{ env.VERSION }}.zip"
+                  ZIP_NAME="${{ github.repository }}.zip"
                   zip -r $ZIP_NAME . -x "./src/**" ".git/**" ".github/**" ".gitignore" ".editorconfig"
               shell: bash
 
