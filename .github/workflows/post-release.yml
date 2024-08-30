@@ -11,11 +11,14 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
     - name: Get release commits
       run: |
         CURRENT_TAG=${{ github.event.release.tag_name }}
-        COMMITS=$(git log $CURRENT_TAG --pretty=format:"- %s")
+        LAST_TAG=$(git describe --tags --abbrev=0)
+        COMMITS=$(git log $LAST_TAG..$CURRENT_TAG --pretty=format:"- %s")
         echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
     - name: Post to Discord (with embed)
@@ -28,7 +31,7 @@ jobs:
       run: |
         EMBED_DATA='{
             "embeds": [{
-            "title": "Nova versão disponível: '"${env.VERSION}"',
+            "title": "Nova versão disponível: '"${RELEASE_TAG}"'",
             "url": "'"${RELEASE_URL}"'",
             "color": 4243543,
             "fields": [{
