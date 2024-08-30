@@ -10,13 +10,16 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Get release commits
+    - name: Get commit messages
+      id: get_commit_messages
       run: |
-        COMMITS=$(git log $(git describe --tags --abbrev=0)..$CURRENT_TAG --pretty=format:"- %s")
+        COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+        "https://api.github.com/repos/${{ github.repository }}/compare/${{ github.event.release.tag_name }}^...${{ github.event.release.tag_name }}" \
+        | jq -r '.commits[].commit.message')
 
     - name: Post to Discord (with embed)
       env:
