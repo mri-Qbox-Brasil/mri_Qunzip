@@ -1,8 +1,36 @@
-fx_version 'cerulean'
-name 'FiveM TypeScript Boilerplate'
-author 'Project Error'
-game 'gta5'
+fx_version "cerulean"
+game "gta5"
 
-server_script 'dist/server/**/*.js'
-client_script 'dist/client/**/*.js'
+description "mri_Qbox Core"
+author "MRI QBOX Team"
+discord ".mur4i"
+discord "gfive_"
+version "MRIQBOX_VERSION"
 
+ui_page "web-side/index.html"
+
+shared_scripts {
+	"@ox_lib/init.lua",
+	"@qbx_core/modules/playerdata.lua",
+	"config.lua",
+	"**/**/config.lua",
+	"**/**/shared/*",
+}
+
+server_scripts {
+    "@oxmysql/lib/MySQL.lua",
+    "**/**/server/*",
+    "**/**/server-side/**/*",
+}
+
+client_scripts {
+	"**/**/client/*",
+	"**/**/client-side/**/*",
+}
+
+files {
+	"web-side/*",
+	"web-side/**/*"
+}
+
+lua54 "yes"

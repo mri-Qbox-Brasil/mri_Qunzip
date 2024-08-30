@@ -1,0 +1,44 @@
+name: Build and Release
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+jobs:
+    build_and_release:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: "16" # versão suportada pelo FiveM
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build project
+              run: npm run build
+
+            - name: Get tag version without "v"
+              id: get_version
+              run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+            - name: Update version in file
+              run: |
+                  sed -i "s/VERSION_IDENTIFIER/${{ env.VERSION }}/g" fxmanifest.lua
+
+            - name: Create Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  files: . # ajuste o caminho conforme necessário
+
+                  exclude: |
+                      ./src/**
+                      .gitignore
+                      .editorconfig
+                      .github/**
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
