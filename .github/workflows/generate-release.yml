@@ -44,37 +44,3 @@ jobs:
                       .github/**
               env:
                   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-            - name: Get release commits
-              run: |
-                CURRENT_TAG=${{ github.event.release.tag_name }}
-                COMMITS=$(git log $CURRENT_TAG --pretty=format:"- %s")
-                echo "COMMITS=$COMMITS" >> $GITHUB_ENV
-
-            - name: Post to Discord (with embed)
-              env:
-                DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
-                COMMITS: ${{ env.COMMITS }}
-                RELEASE_URL: ${{ github.event.release.html_url }}
-                RELEASE_TAG: ${{ github.event.release.tag_name }}
-                RELEASE_NAME: ${{ github.event.release.name }}
-              run: |
-                EMBED_DATA='{
-                    "embeds": [{
-                    "title": "Nova versão disponível: '"${env.VERSION}"',
-                    "url": "'"${RELEASE_URL}"'",
-                    "color": 4243543,
-                    "fields": [{
-                        "name": "O que há de novo?",
-                        "value": "'"${COMMITS}"'"
-                    }],
-                    "footer": {
-                        "text": "MRI QBOX",
-                        "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
-                    },
-                    "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
-                    }]
-                }'
-                curl -H "Content-Type: application/json" \
-                    -d "$EMBED_DATA" \
-                    $DISCORD_WEBHOOK_URL
-
