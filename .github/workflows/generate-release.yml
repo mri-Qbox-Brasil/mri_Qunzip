@@ -46,10 +46,10 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
             - name: Get release commits
               run: |
-                # Pegando commits entre a última tag e a atual release
-                LAST_TAG=$(git describe --tags --abbrev=0 HEAD^)
-                COMMITS=$(git log $LAST_TAG..HEAD --pretty=format:"- %s")
+                CURRENT_TAG=${{ github.event.release.tag_name }}
+                COMMITS=$(git log $CURRENT_TAG --pretty=format:"- %s")
                 echo "COMMITS=$COMMITS" >> $GITHUB_ENV
+
 
             - name: Post to Discord (with embed)
               env:
