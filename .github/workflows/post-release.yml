@@ -14,24 +14,11 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: List tags
-      run: git tag
-
-    - name: Fetch all tags
-      run: git fetch --tags
-
     - name: Get release commits
       run: |
         CURRENT_TAG=${{ github.event.release.tag_name }}
         LAST_TAG=$(git describe --tags --abbrev=0)
-        echo "Current Tag: $CURRENT_TAG"
-        echo "Last Tag: $LAST_TAG"
-        if [ -z "$LAST_TAG" ]; then
-          echo "No previous tag found."
-          COMMITS="No previous tag found."
-        else
-          COMMITS=$(git log $LAST_TAG..$CURRENT_TAG --pretty=format:"- %s" || echo "No commits found between tags.")
-        fi
+        COMMITS=$(git log $LAST_TAG..$CURRENT_TAG --pretty=format:"- %s")
         echo "COMMITS=$COMMITS" >> $GITHUB_ENV
 
     - name: Post to Discord (with embed)
