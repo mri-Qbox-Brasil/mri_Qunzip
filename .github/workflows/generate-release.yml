@@ -94,8 +94,8 @@ jobs:
               id: get_commits
               run: |
                   COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                    "https://api.github.com/repos/${{ github.repository }}/compare/${{ github.ref_name }}^...${{ github.ref_name }}" \
-                    | jq -r '.commits[].commit.message')
+                  "https://api.github.com/repos/${{ github.repository }}/commits?sha=${{ github.sha }}" \
+                  | jq -r '.[].commit.message')
                   echo "::set-output name=commits::$COMMITS"
 
             - name: Post to Discord (with embed)
