@@ -53,16 +53,21 @@ jobs:
                   zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
               shell: bash
 
+            # Criar a release via API do GitHub para acionar o evento release
             - name: Generate Release
-              uses: shogo82148/actions-create-release@v1
+              uses: actions/create-release@v1
               id: release
               with:
+                  tag_name: "v${{ steps.extract_version.outputs.version }}"
                   release_name: "v${{ steps.extract_version.outputs.version }}"
-                  make_latest: true
                   body_path: release_body.txt
+                  draft: false
+                  prerelease: false
 
             - name: Upload artifacts
-              uses: shogo82148/actions-upload-release-asset@v1
+              uses: actions/upload-release-asset@v1
               with:
                   upload_url: ${{ steps.release.outputs.upload_url }}
                   asset_path: release/${{ github.event.repository.name }}.zip
+                  asset_name: "${{ github.event.repository.name }}.zip"
+                  asset_content_type: application/zip
