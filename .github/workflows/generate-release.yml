@@ -37,13 +37,13 @@ jobs:
             - name: Create ZIP file
               run: |
                   ZIP_NAME="${{ github.repository }}.zip"
-                  zip -r $ZIP_NAME . -x "./src/**" ".git/**" ".github/**" ".gitignore" ".editorconfig"
+                  zip -r $ZIP_NAME . -x "./src/**" "./src/node_modules/**" ".git/**" ".github/**" ".gitignore" ".editorconfig"
               shell: bash
 
             - name: Create Release
               uses: softprops/action-gh-release@v1
               with:
                   files: |
-                      ${{ steps.get_version.outputs.VERSION }}.zip
+                      *.zip
               env:
                   GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
