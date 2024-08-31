@@ -25,13 +25,13 @@ jobs:
               working-directory: ./src
               run: npm run build
 
-            - name: Get tag version without "v"
-              id: get_version
-              run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+            - name: Get tag version
+              id: extract_version
+              run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
             - name: Update version in file
               run: |
-                  sed -i "s/MRIQBOX_VERSION/${{ env.VERSION }}/g" fxmanifest.lua
+                  sed -i "s/MRIQBOX_VERSION/${{ steps.extract_version.outputs.version }}/g" fxmanifest.lua
 
             # Criar o arquivo ZIP excluindo os diretórios/arquivos especificados
             - name: Create ZIP file
@@ -46,10 +46,16 @@ jobs:
                     zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
               shell: bash
 
-            - name: Create Release
-              uses: softprops/action-gh-release@v1
+            - name: Generate Release
+              uses: shogo82148/actions-create-release@v1
+              id: release
               with:
-                  files: |
-                      *.zip
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+                release_name: "v${{ steps.extract_version.outputs.version }}"
+                make_latest: true
+                body_path: release_body.txt
+
+            - name: Upload artifacts
+              uses: shogo82148/actions-upload-release-asset@v1
+              with:
+                upload_url: ${{ steps.release.outputs.upload_url }}
+                asset_path: release/${{ github.event.repository.name }}.zip
