@@ -5,6 +5,10 @@ on:
         tags:
             - "v*.*.*"
 
+permissions:
+    contents: write
+    actions: write
+
 jobs:
     build_and_release:
         runs-on: ubuntu-latest
@@ -56,8 +60,6 @@ jobs:
             # Criar a release via API do GitHub para acionar o evento release
             - name: Generate Release
               uses: actions/create-release@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               id: release
               with:
                   tag_name: "v${{ steps.extract_version.outputs.version }}"
@@ -68,8 +70,6 @@ jobs:
 
             - name: Upload artifacts
               uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   upload_url: ${{ steps.release.outputs.upload_url }}
                   asset_path: release/${{ github.event.repository.name }}.zip
