@@ -36,7 +36,7 @@ jobs:
             - name: Get commit messages
               id: get_commit_messages
               run: |
-                  curl -s -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+                  curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                   "https://api.github.com/repos/${{ github.repository }}/commits?sha=${{ github.sha }}" \
                   | jq -r '.[].commit.message' > release_body.txt
 
@@ -79,3 +79,48 @@ jobs:
                   asset_path: release/${{ github.event.repository.name }}.zip
                   asset_name: "${{ github.event.repository.name }}.zip"
                   asset_content_type: application/zip
+
+    post_to_discord:
+        needs: build_and_release
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Get release commits
+              id: get_commits
+              run: |
+                  COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                    "https://api.github.com/repos/${{ github.repository }}/compare/${{ github.ref_name }}^...${{ github.ref_name }}" \
+                    | jq -r '.commits[].commit.message')
+                  echo "::set-output name=commits::$COMMITS"
+
+            - name: Post to Discord (with embed)
+              env:
+                  DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
+                  COMMITS: ${{ steps.get_commits.outputs.commits }}
+                  RELEASE_URL: ${{ github.event.release.html_url }}
+                  RELEASE_TAG: ${{ github.ref_name }}
+              run: |
+                  EMBED_DATA='{
+                      "embeds": [{
+                      "title": "Nova versão disponível: '"${RELEASE_TAG}"'",
+                      "url": "'"${RELEASE_URL}"'",
+                      "color": 4243543,
+                      "fields": [{
+                          "name": "O que há de novo?",
+                          "value": "'"${COMMITS}"'"
+                      }],
+                      "footer": {
+                          "text": "MRI QBOX",
+                          "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
+                      },
+                      "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
+                      }]
+                  }'
+                  curl -H "Content-Type: application/json" \
+                      -d "$EMBED_DATA" \
+                      $DISCORD_WEBHOOK_URL
