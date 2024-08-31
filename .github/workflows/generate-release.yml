@@ -37,7 +37,7 @@ jobs:
             - name: Create ZIP file
               run: |
                   ZIP_NAME="${{ github.repository }}.zip"
-                  zip -r $ZIP_NAME . -x "./src/**" "./src/node_modules/**" ".git/**" ".github/**" ".gitignore" ".editorconfig"
+                  zip -r $ZIP_NAME . -x "**/node_modules/**" ".git/**" ".github/**" ".gitignore" ".editorconfig"
               shell: bash
 
             - name: Create Release
