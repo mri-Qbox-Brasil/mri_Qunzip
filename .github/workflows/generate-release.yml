@@ -29,6 +29,13 @@ jobs:
               id: extract_version
               run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
+            - name: Get commit messages
+              id: get_commit_messages
+              run: |
+                  curl -s -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+                  "https://api.github.com/repos/${{ github.repository }}/commits?sha=${{ github.sha }}" \
+                  | jq -r '.[].commit.message' > release_body.txt
+
             - name: Update version in file
               run: |
                   sed -i "s/MRIQBOX_VERSION/${{ steps.extract_version.outputs.version }}/g" fxmanifest.lua
@@ -36,26 +43,26 @@ jobs:
             # Criar o arquivo ZIP excluindo os diretórios/arquivos especificados
             - name: Create ZIP file
               run: |
-                    mkdir -p release/${{ github.event.repository.name }}
-                    mkdir -p release/${{ github.event.repository.name }}/modules
-                    mkdir -p release/${{ github.event.repository.name }}/web-side
-                    cp fxmanifest.lua release/${{ github.event.repository.name }}
-                    cp -r modules/**/* release/${{ github.event.repository.name }}/modules
-                    cp -r web-side/**/* release/${{ github.event.repository.name }}/web-side
-                    cd release
-                    zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
+                  mkdir -p release/${{ github.event.repository.name }}
+                  mkdir -p release/${{ github.event.repository.name }}/modules
+                  mkdir -p release/${{ github.event.repository.name }}/web-side
+                  cp fxmanifest.lua release/${{ github.event.repository.name }}
+                  cp -r modules/**/* release/${{ github.event.repository.name }}/modules
+                  cp -r web-side/**/* release/${{ github.event.repository.name }}/web-side
+                  cd release
+                  zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
               shell: bash
 
             - name: Generate Release
               uses: shogo82148/actions-create-release@v1
               id: release
               with:
-                release_name: "v${{ steps.extract_version.outputs.version }}"
-                make_latest: true
-                body_path: release_body.txt
+                  release_name: "v${{ steps.extract_version.outputs.version }}"
+                  make_latest: true
+                  body_path: release_body.txt
 
             - name: Upload artifacts
               uses: shogo82148/actions-upload-release-asset@v1
               with:
-                upload_url: ${{ steps.release.outputs.upload_url }}
-                asset_path: release/${{ github.event.repository.name }}.zip
+                  upload_url: ${{ steps.release.outputs.upload_url }}
+                  asset_path: release/${{ github.event.repository.name }}.zip
