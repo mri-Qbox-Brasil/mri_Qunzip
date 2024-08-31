@@ -36,8 +36,14 @@ jobs:
             # Criar o arquivo ZIP excluindo os diretórios/arquivos especificados
             - name: Create ZIP file
               run: |
-                  ZIP_NAME="${{ github.repository }}.zip"
-                  find . -path "**/node_modules" -prune -o -print | zip -r $ZIP_NAME -@
+                    mkdir -p release/${{ github.event.repository.name }}
+                    mkdir -p release/${{ github.event.repository.name }}/modules
+                    mkdir -p release/${{ github.event.repository.name }}/web-side
+                    cp fxmanifest.lua release/${{ github.event.repository.name }}
+                    cp -r modules/**/* release/${{ github.event.repository.name }}/modules
+                    cp -r web-side/**/* release/${{ github.event.repository.name }}/web-side
+                    cd release
+                    zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
               shell: bash
 
             - name: Create Release
