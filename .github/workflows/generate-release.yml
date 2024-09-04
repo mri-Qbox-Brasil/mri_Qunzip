@@ -31,18 +31,30 @@ jobs:
               working-directory: ./src
               run: npm run build
 
-            - name: Get commit messages and version
+            - name: Get commit messages, version, and repository description
               id: get_project_information
               run: |
+                  # Obtemos a tag anterior se ela existir
                   LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+                  # Definimos a versão a partir da tag atual
                   CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+
                   if [ -n "$LAST_TAG" ]; then
+                    # Se houver uma tag anterior, capturamos os commits entre a tag anterior e a tag atual
                     COMMITS=$(git log $LAST_TAG..$GITHUB_SHA --oneline --pretty=format:"%h %s")
                   else
+                    # Se não houver tags anteriores (primeira tag), capturamos todos os commits
                     COMMITS=$(git log --oneline --pretty=format:"%h %s")
                   fi
+
+                  # Obtém a descrição do repositório
+                  REPO_DESCRIPTION=$(curl -s https://api.github.com/repos/${{ github.repository }} | jq -r .description)
+
+                  # Salva os commits e a descrição em um arquivo
                   echo "$COMMITS" > ./release_body.txt
                   echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
+                  echo "repo_description=$REPO_DESCRIPTION" >> $GITHUB_OUTPUT
 
             - name: Update version in file
               run: |
@@ -86,19 +98,23 @@ jobs:
                   DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
                   RELEASE_URL: https://github.com/${{ github.repository }}/releases/latest
                   RELEASE_TAG: ${{ github.ref_name }}
+                  RELEASE_DESCRIPTION: ${{ env.repo_description }}
+                  RELEASE_AUTHOR: ${{ github.actor }}
+                  RELEASE_DATE: $(date --utc +%Y-%m-%dT%H:%M:%SZ)
               run: |
                   EMBED_DATA='{
-                    "embeds": [{
+                      "embeds": [{
                       "title": "Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
+                      "description": "'"${RELEASE_DESCRIPTION}"'",
                       "color": 4243543,
                       "footer": {
-                        "text": "MRI QBOX",
-                        "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
+                          "text": "MRI QBOX - Liberado por: '"${RELEASE_AUTHOR}"'",
+                          "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
                       },
-                      "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
-                    }]
+                      "timestamp": "'"${RELEASE_DATE}"'"
+                      }]
                   }'
                   curl -H "Content-Type: application/json" \
-                    -d "$EMBED_DATA" \
-                    $DISCORD_WEBHOOK_URL
+                      -d "$EMBED_DATA" \
+                      $DISCORD_WEBHOOK_URL
