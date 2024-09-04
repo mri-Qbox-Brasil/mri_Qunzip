@@ -41,7 +41,7 @@ jobs:
                   COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                   "https://api.github.com/repos/${{ github.repository }}/commits?sha=${{ github.sha }}" \
                   | jq -r '.[].commit.message')
-                  echo "::set-output name=commits::$COMMITS"
+                  echo "commits=$COMMITS" >> $GITHUB_OUTPUT
 
             - name: Update version in file
               run: |
@@ -60,7 +60,7 @@ jobs:
               shell: bash
 
             - name: Generate Release
-              uses: actions/create-release@v1
+              uses: comnoco/create-release-action@v2
               env:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               id: release
