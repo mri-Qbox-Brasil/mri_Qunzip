@@ -35,7 +35,16 @@ jobs:
             - name: Get commit messages and version
               id: get_project_information
               run: |
-                  COMMITS=$(git log --format=%B -n 5)  # Ajuste para pegar os últimos 5 commits
+                  # Tenta obter a última tag, mas lida com o caso de não existir
+                  if git describe --tags --abbrev=0 HEAD^ > /dev/null 2>&1; then
+                    PREV_TAG=$(git describe --tags --abbrev=0 HEAD^)
+                  else
+                    PREV_TAG=$(git rev-list --max-parents=0 HEAD)  # Primeiro commit se não houver tag
+                  fi
+
+                  # Pegando os commits entre a última tag ou desde o início, se for a primeira release
+                  COMMITS=$(git log $PREV_TAG..HEAD --oneline --pretty=format:"%h %s")
+
                   VERSION="${GITHUB_REF#refs/tags/v}"
                   echo "version=$VERSION" >> $GITHUB_OUTPUT
                   echo "commits=$COMMITS" >> $GITHUB_OUTPUT
