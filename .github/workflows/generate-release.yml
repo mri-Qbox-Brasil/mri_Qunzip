@@ -12,6 +12,8 @@ permissions:
 jobs:
     build_and_release:
         runs-on: ubuntu-latest
+        outputs:
+            commits: ${{ steps.get_commit_messages.outputs.commits }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -65,7 +67,7 @@ jobs:
               with:
                   tag_name: "v${{ steps.extract_version.outputs.version }}"
                   release_name: "v${{ steps.extract_version.outputs.version }}"
-                  body_path: release_body.txt
+                  body: "${{ steps.get_commit_messages.outputs.commits }}"
                   draft: false
                   prerelease: false
 
@@ -87,7 +89,7 @@ jobs:
             - name: Post to Discord (with embed)
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
-                  COMMITS: ${{ needs.build_and_release.outputs.get_commit_messages.commits }}
+                  COMMITS: ${{ needs.build_and_release.outputs.commits }}
                   RELEASE_URL: ${{ github.event.release.html_url }}
                   RELEASE_TAG: ${{ github.ref_name }}
               run: |
