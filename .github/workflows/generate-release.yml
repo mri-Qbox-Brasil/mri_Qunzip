@@ -83,7 +83,7 @@ jobs:
                   prerelease: false
 
             - name: Upload artifacts
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: "${{ github.event.repository.name }}.zip"
                   path: release/${{ github.event.repository.name }}.zip
