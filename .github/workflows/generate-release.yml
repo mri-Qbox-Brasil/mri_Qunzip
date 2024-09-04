@@ -36,15 +36,15 @@ jobs:
             - name: Get commit messages
               id: get_commit_messages
               run: |
-                  curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+                  COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                   "https://api.github.com/repos/${{ github.repository }}/commits?sha=${{ github.sha }}" \
-                  | jq -r '.[].commit.message' > release_body.txt
+                  | jq -r '.[].commit.message')
+                  echo "::set-output name=commits::$COMMITS"
 
             - name: Update version in file
               run: |
                   sed -i "s/MRIQBOX_VERSION/${{ steps.extract_version.outputs.version }}/g" fxmanifest.lua
 
-            # Criar o arquivo ZIP excluindo os diretórios/arquivos especificados
             - name: Create ZIP file
               run: |
                   mkdir -p release/${{ github.event.repository.name }}
@@ -57,7 +57,6 @@ jobs:
                   zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
               shell: bash
 
-            # Criar a release via API do GitHub para acionar o evento release
             - name: Generate Release
               uses: actions/create-release@v1
               env:
@@ -85,23 +84,10 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
-
-            - name: Get release commits
-              id: get_commits
-              run: |
-                  COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                  "https://api.github.com/repos/${{ github.repository }}/commits?sha=${{ github.sha }}" \
-                  | jq -r '.[].commit.message')
-                  echo "::set-output name=commits::$COMMITS"
-
             - name: Post to Discord (with embed)
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
-                  COMMITS: ${{ steps.get_commits.outputs.commits }}
+                  COMMITS: ${{ needs.build_and_release.outputs.get_commit_messages.commits }}
                   RELEASE_URL: ${{ github.event.release.html_url }}
                   RELEASE_TAG: ${{ github.ref_name }}
               run: |
