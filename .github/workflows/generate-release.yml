@@ -32,13 +32,13 @@ jobs:
               working-directory: ./src
               run: npm run build
 
-            - name: Get commit messages
+            - name: Get commit messages and version
               id: get_project_information
               run: |
-                  COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-                  "https://api.github.com/repos/${{ github.repository }}/commits?sha=${{ github.sha }}" \
-                  | jq -r '.[].commit.message')
-                  echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT && echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+                  COMMITS=$(git log --format=%B -n 5)  # Ajuste para pegar os últimos 5 commits
+                  VERSION="${GITHUB_REF#refs/tags/v}"
+                  echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  echo "commits=$COMMITS" >> $GITHUB_OUTPUT
 
             - name: Update version in file
               run: |
@@ -69,43 +69,38 @@ jobs:
                   prerelease: false
 
             - name: Upload artifacts
-              uses: actions/upload-release-asset@v1
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              uses: actions/upload-artifact@v3 # Atualização para a versão mais recente
               with:
-                  upload_url: ${{ steps.release.outputs.upload_url }}
-                  asset_path: release/${{ github.event.repository.name }}.zip
-                  asset_name: "${{ github.event.repository.name }}.zip"
-                  asset_content_type: application/zip
+                  name: "${{ github.event.repository.name }}.zip"
+                  path: release/${{ github.event.repository.name }}.zip
 
     post_to_discord:
         needs: build_and_release
         runs-on: ubuntu-latest
-
         steps:
             - name: Post to Discord (with embed)
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
                   COMMITS: ${{ needs.build_and_release.outputs.commits }}
-                  RELEASE_URL: github.com/${{ github.repository }}/releases/latest
+                  RELEASE_URL: https://github.com/${{ github.repository }}/releases/latest
                   RELEASE_TAG: ${{ github.ref_name }}
               run: |
                   EMBED_DATA='{
-                      "embeds": [{
+                    "embeds": [{
                       "title": "Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
                       "color": 4243543,
                       "fields": [{
-                          "name": "O que há de novo?",
-                          "value": "'"${COMMITS}"'"
+                        "name": "O que há de novo? (últimos 5 commits)",
+                        "value": "'"${COMMITS}"'"
                       }],
                       "footer": {
-                          "text": "MRI QBOX",
-                          "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
+                        "text": "MRI QBOX",
+                        "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
                       },
                       "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
-                      }]
+                    }]
                   }'
                   curl -H "Content-Type: application/json" \
-                      -d "$EMBED_DATA" \
-                      $DISCORD_WEBHOOK_URL
+                    -d "$EMBED_DATA" \
+                    $DISCORD_WEBHOOK_URL
