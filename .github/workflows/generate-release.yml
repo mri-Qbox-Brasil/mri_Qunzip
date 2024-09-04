@@ -76,8 +76,8 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               id: release
               with:
-                  tag_name: "v${{ steps.get_project_information.outputs.version }}"
-                  release_name: "v${{ steps.get_project_information.outputs.version }}"
+                  tag_name: "${{ steps.get_project_information.outputs.version }}"
+                  release_name: "${{ steps.get_project_information.outputs.version }}"
                   body_path: ./release_body.txt
                   draft: false
                   prerelease: false
