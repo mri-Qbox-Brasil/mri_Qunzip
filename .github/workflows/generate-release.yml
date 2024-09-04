@@ -49,7 +49,7 @@ jobs:
                   fi
 
                   # Salva os commits em um arquivo
-                  echo "$COMMITS" > release_body.txt
+                  echo "$COMMITS" > ./release_body.txt
 
                   # Definindo a versão a partir da tag atual
                   echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
