@@ -13,7 +13,6 @@ jobs:
     build_and_release:
         runs-on: ubuntu-latest
         outputs:
-            commits: ${{ steps.get_project_information.outputs.commits }}
             version: ${{ steps.get_project_information.outputs.version }}
         steps:
             - name: Checkout code
@@ -22,7 +21,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "16" # versão suportada pelo FiveM
+                  node-version: "16"
 
             - name: Install dependencies
               working-directory: ./src
@@ -35,21 +34,11 @@ jobs:
             - name: Get commit messages and version
               id: get_project_information
               run: |
-                  # Tenta obter a última tag
-                  if git describe --tags --abbrev=0 > /dev/null 2>&1; then
-                    PREV_TAG=$(git describe --tags --abbrev=0)
-                  else
-                    # Se não houver tags anteriores, use o primeiro commit como base
-                    PREV_TAG=$(git rev-list --max-parents=0 HEAD)
-                  fi
+                git log -1 --pretty=format:"%s" ${{ github.sha }} > release_body.txt
 
-                  # Pegando os commits desde a última tag ou desde o início, se for a primeira release
-                  COMMITS=$(git log $PREV_TAG..HEAD --oneline --pretty=format:"%h %s")
-
-                  # Definindo a versão a partir da tag atual
-                  VERSION="${GITHUB_REF#refs/tags/v}"
-                  echo "version=$VERSION" >> $GITHUB_OUTPUT
-                  echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+                # Definindo a versão a partir da tag atual
+                VERSION="${GITHUB_REF#refs/tags/v}"
+                echo "version=$VERSION" >> $GITHUB_OUTPUT
 
             - name: Update version in file
               run: |
@@ -75,12 +64,12 @@ jobs:
               with:
                   tag_name: "v${{ steps.get_project_information.outputs.version }}"
                   release_name: "v${{ steps.get_project_information.outputs.version }}"
-                  body: "${{ steps.get_project_information.outputs.commits }}"
+                  body_path: ./release_body.txt
                   draft: false
                   prerelease: false
 
             - name: Upload artifacts
-              uses: actions/upload-artifact@v3 # Atualização para a versão mais recente
+              uses: actions/upload-artifact@v3
               with:
                   name: "${{ github.event.repository.name }}.zip"
                   path: release/${{ github.event.repository.name }}.zip
@@ -92,7 +81,6 @@ jobs:
             - name: Post to Discord (with embed)
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
-                  COMMITS: ${{ needs.build_and_release.outputs.commits }}
                   RELEASE_URL: https://github.com/${{ github.repository }}/releases/latest
                   RELEASE_TAG: ${{ github.ref_name }}
               run: |
@@ -101,10 +89,6 @@ jobs:
                       "title": "Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
                       "color": 4243543,
-                      "fields": [{
-                        "name": "O que há de novo? (últimos 5 commits)",
-                        "value": "'"${COMMITS}"'"
-                      }],
                       "footer": {
                         "text": "MRI QBOX",
                         "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
