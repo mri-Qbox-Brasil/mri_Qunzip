@@ -13,7 +13,8 @@ jobs:
     build_and_release:
         runs-on: ubuntu-latest
         outputs:
-            commits: ${{ steps.get_commit_messages.outputs.commits }}
+            commits: ${{ steps.get_project_information.outputs.commits }}
+            version: ${{ steps.get_project_information.outputs.version }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -31,21 +32,17 @@ jobs:
               working-directory: ./src
               run: npm run build
 
-            - name: Get tag version
-              id: extract_version
-              run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
             - name: Get commit messages
-              id: get_commit_messages
+              id: get_project_information
               run: |
                   COMMITS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                   "https://api.github.com/repos/${{ github.repository }}/commits?sha=${{ github.sha }}" \
                   | jq -r '.[].commit.message')
-                  echo "commits=$COMMITS" >> $GITHUB_OUTPUT
+                  echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT && echo "commits=$COMMITS" >> $GITHUB_OUTPUT
 
             - name: Update version in file
               run: |
-                  sed -i "s/MRIQBOX_VERSION/${{ steps.extract_version.outputs.version }}/g" fxmanifest.lua
+                  sed -i "s/MRIQBOX_VERSION/${{ steps.get_project_information.outputs.version }}/g" fxmanifest.lua
 
             - name: Create ZIP file
               run: |
@@ -65,9 +62,9 @@ jobs:
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               id: release
               with:
-                  tag_name: "v${{ steps.extract_version.outputs.version }}"
-                  release_name: "v${{ steps.extract_version.outputs.version }}"
-                  body: "${{ steps.get_commit_messages.outputs.commits }}"
+                  tag_name: "v${{ steps.get_project_information.outputs.version }}"
+                  release_name: "v${{ steps.get_project_information.outputs.version }}"
+                  body: "${{ steps.get_project_information.outputs.commits }}"
                   draft: false
                   prerelease: false
 
@@ -90,7 +87,7 @@ jobs:
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
                   COMMITS: ${{ needs.build_and_release.outputs.commits }}
-                  RELEASE_URL: ${{ github.event.release.html_url }}
+                  RELEASE_URL: github.com/${{ github.repository }}/releases/latest
                   RELEASE_TAG: ${{ github.ref_name }}
               run: |
                   EMBED_DATA='{
