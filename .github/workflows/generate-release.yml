@@ -34,11 +34,25 @@ jobs:
             - name: Get commit messages and version
               id: get_project_information
               run: |
-                git log -1 --pretty=format:"%s" ${{ github.sha }} > release_body.txt
+                  # Obtemos a tag anterior se ela existir
+                  LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
 
-                # Definindo a versão a partir da tag atual
-                VERSION="${GITHUB_REF#refs/tags/v}"
-                echo "version=$VERSION" >> $GITHUB_OUTPUT
+                  # Definimos a versão a partir da tag atual
+                  CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+
+                  if [ -n "$LAST_TAG" ]; then
+                    # Se houver uma tag anterior, capturamos os commits entre a tag anterior e a tag atual
+                    COMMITS=$(git log $LAST_TAG..$GITHUB_SHA --oneline --pretty=format:"%h %s")
+                  else
+                    # Se não houver tags anteriores (primeira tag), capturamos todos os commits
+                    COMMITS=$(git log --oneline --pretty=format:"%h %s")
+                  fi
+
+                  # Salva os commits em um arquivo
+                  echo "$COMMITS" > release_body.txt
+
+                  # Definindo a versão a partir da tag atual
+                  echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
 
             - name: Update version in file
               run: |
