@@ -59,10 +59,10 @@ jobs:
                   -x "./.github/*" \
                   -x "./.github/**" \
                   -x ".git/*" \
-                  -x ".git/**"
-                  -x "*.txt"
-                  -x "*.lock"
-                  -x ".gitignore"
+                  -x ".git/**" \
+                  -x "*.txt" \
+                  -x "*.lock" \
+                  -x ".gitignore" \
                   -x ".editorconfig"
 
             - name: Generate Release
