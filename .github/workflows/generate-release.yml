@@ -104,14 +104,25 @@ jobs:
                       },
                       "title": "[${{ github.event.repository.name }}] Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
-                      "description": "'"${REPO_DESCRIPTION}"'",
+                      "description": "'"${REPO_DESCRIPTION}"' ||@here||",
                       "fields": [{
-                        "name": "O que há de novo? (últimos 5 commits)",
-                        "value": "https://github.com/mri-Qbox-Brasil/mri_Qunzip/commits/${{ github.ref_name }}/"
+                        "name": "O que há de novo?",
+                        "value": "[Veja as mudanças aqui](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }})"
+                      },
+                      {
+                        "name": "Precisa de ajuda?",
+                        "value": "[Participe de nossa comunidade](${{ secrets.INVITE_DISCORD_URL}})"
+                      },
+                      {
+                        "name": "Documentação",
+                        "value": "[Acesse a documentação aqui](https://docs.mriqbox.com.br)"
                       }],
+                      "image": {
+                        "url": "https://assets.mriqbox.com.br/branding/resource_update.png"
+                      },
                       "color": 4243543,
                       "footer": {
-                          "text": "MRI QBOX - Liberado por: '"${RELEASE_AUTHOR}"'",
+                          "text": "Realizado por: '"${RELEASE_AUTHOR}"'",
                           "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
                       },
                       "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
