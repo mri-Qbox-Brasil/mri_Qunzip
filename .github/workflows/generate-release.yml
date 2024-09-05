@@ -90,7 +90,7 @@ jobs:
             - name: Post to Discord (with embed)
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.UPDATE_DISCORD_WEBHOOK }}
-                  RELEASE_URL: https://github.com/${{ github.repository }}/releases/latest
+                  RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}
                   RELEASE_TAG: ${{ github.ref_name }}
                   RELEASE_AUTHOR: ${{ github.actor }}
               run: |
