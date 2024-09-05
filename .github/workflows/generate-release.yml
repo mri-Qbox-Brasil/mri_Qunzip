@@ -57,8 +57,8 @@ jobs:
                   mkdir -p release/${{ github.event.repository.name }}/modules
                   mkdir -p release/${{ github.event.repository.name }}/web-side
                   cp fxmanifest.lua release/${{ github.event.repository.name }}
-                  cp -r modules/**/* release/${{ github.event.repository.name }}/modules
-                  cp -r web-side/**/* release/${{ github.event.repository.name }}/web-side
+                  cp -r modules/**/**/* release/${{ github.event.repository.name }}/modules
+                  cp -r web-side/**/**/* release/${{ github.event.repository.name }}/web-side
                   cd release
                   zip -r "${{ github.event.repository.name }}.zip" "${{ github.event.repository.name }}"
 
