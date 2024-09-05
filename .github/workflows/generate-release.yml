@@ -49,6 +49,7 @@ jobs:
 
                   REPO_DESCRIPTION=$(curl -s https://api.github.com/repos/mri-Qbox-Brasil/mri_Qunzip | jq -r .description)
                   echo "$COMMITS"
+                  echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
                   echo "$COMMITS" > ./release_body.txt
 
             - name: Update version in file
