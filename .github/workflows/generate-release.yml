@@ -50,7 +50,9 @@ jobs:
 
                   # Salva os commits e a descrição em um arquivo
                   echo "$COMMITS" > ./release_body.txt
+                  echo "commits=$COMMITS" >> $GITHUB_OUTPUT
                   echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
+                  cat ./release_body.txt
 
             - name: Update version in file
               run: |
@@ -75,7 +77,7 @@ jobs:
               with:
                   tag_name: "${{ steps.get_project_information.outputs.version }}"
                   release_name: "${{ steps.get_project_information.outputs.version }}"
-                  body_path: ./release_body.txt
+                  body: ${{ steps.get_project_information.outputs.commits }}
                   draft: false
                   prerelease: false
 
@@ -102,7 +104,7 @@ jobs:
                   # Crie o JSON para o embed do Discord
                   EMBED_DATA='{
                       "embeds": [{
-                      "title": "[${{ github.repository }}] Nova versão disponível: '"${RELEASE_TAG}"'",
+                      "title": "[${{ github.event.repository.name }}] Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
                       "description": "'"${REPO_DESCRIPTION}"'",
                       "color": 4243543,
@@ -113,8 +115,6 @@ jobs:
                       "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
                       }]
                   }'
-
-                  echo "$EMBED_DATA"
 
                   # Envie o webhook para o Discord
                   curl -H "Content-Type: application/json" \
