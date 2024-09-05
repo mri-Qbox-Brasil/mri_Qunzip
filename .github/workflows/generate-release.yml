@@ -75,10 +75,10 @@ jobs:
                   prerelease: false
 
             - name: Upload artifacts
-              uses: actions/upload-artifact@v4
+              uses: shogo82148/actions-upload-release-asset@v1.7.7
               with:
-                  name: "${{ github.event.repository.name }}.zip"
-                  path: release/${{ github.event.repository.name }}.zip
+                upload_url: ${{ steps.release.outputs.upload_url }}
+                asset_path: release/${{ github.event.repository.name }}.zip
 
     post_to_discord:
         needs: build_and_release
@@ -91,10 +91,8 @@ jobs:
                   RELEASE_TAG: ${{ github.ref_name }}
                   RELEASE_AUTHOR: ${{ github.actor }}
               run: |
-                  # Obtenha a descrição do repositório diretamente aqui
                   REPO_DESCRIPTION=$(curl -s https://api.github.com/repos/${{ github.repository }} | jq -r .description)
 
-                  # Crie o JSON para o embed do Discord
                   EMBED_DATA='{
                       "embeds": [{
                       "title": "[${{ github.event.repository.name }}] Nova versão disponível: '"${RELEASE_TAG}"'",
@@ -109,7 +107,6 @@ jobs:
                       }]
                   }'
 
-                  # Envie o webhook para o Discord
                   curl -H "Content-Type: application/json" \
                       -d "$EMBED_DATA" \
                       $DISCORD_WEBHOOK_URL
