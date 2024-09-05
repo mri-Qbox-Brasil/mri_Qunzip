@@ -53,12 +53,6 @@ jobs:
 
             - name: Create ZIP file
               run: |
-                  mkdir -p release/${{ github.event.repository.name }}
-                  mkdir -p release/${{ github.event.repository.name }}/modules
-                  mkdir -p release/${{ github.event.repository.name }}/web-side
-                  cp fxmanifest.lua release/${{ github.event.repository.name }}
-                  cp -r modules/**/**/* release/${{ github.event.repository.name }}/modules
-                  cp -r web-side/**/**/* release/${{ github.event.repository.name }}/web-side
                   cd release
                   zip -r "${{ github.event.repository.name }}.zip" "${{ github.event.repository.name }}"
 
@@ -77,8 +71,8 @@ jobs:
             - name: Upload artifacts
               uses: shogo82148/actions-upload-release-asset@v1.7.7
               with:
-                upload_url: ${{ steps.release.outputs.upload_url }}
-                asset_path: release/${{ github.event.repository.name }}.zip
+                  upload_url: ${{ steps.release.outputs.upload_url }}
+                  asset_path: release/${{ github.event.repository.name }}.zip
 
     post_to_discord:
         needs: build_and_release
