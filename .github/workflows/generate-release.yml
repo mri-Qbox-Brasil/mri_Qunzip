@@ -102,7 +102,7 @@ jobs:
                   # Crie o JSON para o embed do Discord
                   EMBED_DATA='{
                       "embeds": [{
-                      "title": "Nova versão disponível: '"${RELEASE_TAG}"'",
+                      "title": "[${{ github.repository }}] Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
                       "description": "'"${REPO_DESCRIPTION}"'",
                       "color": 4243543,
