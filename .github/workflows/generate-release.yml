@@ -111,12 +111,12 @@ jobs:
                       },
                       {
                         "name": "Precisa de ajuda?",
-                        "value": "[Participe de nossa comunidade](${{ secrets.INVITE_DISCORD_URL}})",
+                        "value": "[Participe da comunidade](${{ secrets.INVITE_DISCORD_URL}})",
                         "inline": true
                       },
                       {
                         "name": "Documentação",
-                        "value": "[Acesse a documentação aqui](https://docs.mriqbox.com.br)",
+                        "value": "[Acesse aqui](https://docs.mriqbox.com.br)",
                         "inline": true
                       }],
                       "image": {
