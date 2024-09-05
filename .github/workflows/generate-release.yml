@@ -98,6 +98,10 @@ jobs:
 
                   EMBED_DATA='{
                       "embeds": [{
+                      "author": {
+                          "name": "MRI QBOX - Updates",
+                          "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
+                      },
                       "title": "[${{ github.event.repository.name }}] Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
                       "description": "'"${REPO_DESCRIPTION}"'",
