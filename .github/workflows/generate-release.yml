@@ -115,6 +115,8 @@ jobs:
                       }]
                   }'
 
+                  echo "$EMBED_DATA"
+
                   # Envie o webhook para o Discord
                   curl -H "Content-Type: application/json" \
                       -d "$EMBED_DATA" \
