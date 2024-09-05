@@ -53,7 +53,7 @@ jobs:
 
             - name: Create ZIP file
               run: |
-                  zip -r "${{ github.event.repository.name }}.zip" "${{ github.event.repository.name }}"
+                  zip -r "${{ github.event.repository.name }}.zip" .
 
             - name: Generate Release
               uses: comnoco/create-release-action@v2
