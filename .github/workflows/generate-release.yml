@@ -36,19 +36,14 @@ jobs:
               run: |
                   LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
                   CURRENT_TAG="${GITHUB_REF#refs/tags/}"
-                  echo "LAST_TAG: $LAST_TAG"
-                  echo "CURRENT_TAG: $CURRENT_TAG"
 
                   if [ -n "$LAST_TAG" ]; then
-                    echo "tinha tag"
                     COMMITS=$(git log $LAST_TAG..$GITHUB_SHA --oneline --pretty=format:"%h %s")
                   else
-                    echo "nao tinha tag"
                     COMMITS=$(git log --oneline --pretty=format:"%h %s")
                   fi
 
                   REPO_DESCRIPTION=$(curl -s https://api.github.com/repos/mri-Qbox-Brasil/mri_Qunzip | jq -r .description)
-                  echo "$COMMITS"
                   echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
                   echo "$COMMITS" > ./release_body.txt
 
