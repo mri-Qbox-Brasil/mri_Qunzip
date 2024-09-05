@@ -53,7 +53,7 @@ jobs:
 
             - name: Create ZIP file
               run: |
-                  zip -r "${{ github.event.repository.name }}.zip" . --exclude "./src/node_modules/*" --exclude "./src/node_modules/**/*" --exclude "./src/*" --exclude "./.github/*"
+                  zip -r "${{ github.event.repository.name }}.zip" . -x "src/node_modules/*" -x "src/node_modules/**" -x ".github/*" -x "src/*"
 
             - name: Generate Release
               uses: comnoco/create-release-action@v2
