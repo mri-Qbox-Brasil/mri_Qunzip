@@ -101,6 +101,10 @@ jobs:
                       "title": "[${{ github.event.repository.name }}] Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
                       "description": "'"${REPO_DESCRIPTION}"'",
+                      "fields": [{
+                        "name": "O que há de novo? (últimos 5 commits)",
+                        "value": "https://github.com/mri-Qbox-Brasil/mri_Qunzip/commits/${{ github.ref_name }}/"
+                      }],
                       "color": 4243543,
                       "footer": {
                           "text": "MRI QBOX - Liberado por: '"${RELEASE_AUTHOR}"'",
