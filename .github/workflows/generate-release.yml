@@ -95,7 +95,6 @@ jobs:
                   RELEASE_URL: https://github.com/${{ github.repository }}/releases/latest
                   RELEASE_TAG: ${{ github.ref_name }}
                   RELEASE_AUTHOR: ${{ github.actor }}
-                  RELEASE_DATE: $(date --utc +%Y-%m-%dT%H:%M:%SZ)
               run: |
                   # Obtenha a descrição do repositório diretamente aqui
                   REPO_DESCRIPTION=$(curl -s https://api.github.com/repos/${{ github.repository }} | jq -r .description)
@@ -111,7 +110,7 @@ jobs:
                           "text": "MRI QBOX - Liberado por: '"${RELEASE_AUTHOR}"'",
                           "icon_url": "https://assets.mriqbox.com.br/branding/logo96.png"
                       },
-                      "timestamp": "'"${RELEASE_DATE}"'"
+                      "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
                       }]
                   }'
 
