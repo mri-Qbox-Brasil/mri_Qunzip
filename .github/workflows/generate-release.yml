@@ -105,7 +105,7 @@ jobs:
                       "embeds": [{
                       "title": "Nova versão disponível: '"${RELEASE_TAG}"'",
                       "url": "'"${RELEASE_URL}"'",
-                      "description": "'"${REPO_DESCRIPTION}"'",
+                      "description": "Description",
                       "color": 4243543,
                       "footer": {
                           "text": "MRI QBOX - Liberado por: '"${RELEASE_AUTHOR}"'",
