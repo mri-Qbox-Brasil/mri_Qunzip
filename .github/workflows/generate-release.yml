@@ -34,25 +34,22 @@ jobs:
             - name: Get commit messages, version, and repository description
               id: get_project_information
               run: |
-                  # Obtemos a tag anterior se ela existir
                   LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-
-                  # Definimos a versão a partir da tag atual
                   CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+                  echo "LAST_TAG: $LAST_TAG"
+                  echo "CURRENT_TAG: $CURRENT_TAG"
 
                   if [ -n "$LAST_TAG" ]; then
-                    # Se houver uma tag anterior, capturamos os commits entre a tag anterior e a tag atual
+                    echo "tinha tag"
                     COMMITS=$(git log $LAST_TAG..$GITHUB_SHA --oneline --pretty=format:"%h %s")
                   else
-                    # Se não houver tags anteriores (primeira tag), capturamos todos os commits
+                    echo "nao tinha tag"
                     COMMITS=$(git log --oneline --pretty=format:"%h %s")
                   fi
 
-                  # Salva os commits e a descrição em um arquivo
+                  REPO_DESCRIPTION=$(curl -s https://api.github.com/repos/mri-Qbox-Brasil/mri_Qunzip | jq -r .description)
+                  echo "$COMMITS"
                   echo "$COMMITS" > ./release_body.txt
-                  echo "commits=$COMMITS" >> $GITHUB_OUTPUT
-                  echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
-                  cat ./release_body.txt
 
             - name: Update version in file
               run: |
