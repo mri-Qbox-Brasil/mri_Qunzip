@@ -144,7 +144,6 @@ jobs:
                       {
                         "name": "Veja todas as mudanças",
                         "value": "[Veja todas as mudanças aqui](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }})",
-                        "inline": true
                       },
                       {
                         "name": "Precisa de ajuda?",
