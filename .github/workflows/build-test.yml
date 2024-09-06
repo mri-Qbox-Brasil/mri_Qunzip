@@ -1,8 +1,16 @@
 name: Build Test
-on: [push, pull_request]
+
+on:
+  push:
+    branches:
+      - '**'  # Executa para qualquer branch
+    tags: []  # Não executa para tags
+  pull_request:
+    branches:
+      - '**'  # Executa para qualquer branch
 
 jobs:
-  build-test:
+  build_test:
     name: Build Test
     runs-on: ubuntu-latest
     steps:
