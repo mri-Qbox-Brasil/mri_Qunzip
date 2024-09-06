@@ -70,17 +70,17 @@ jobs:
 
             - name: Create ZIP file
               run: |
-                  zip -r --symlinks "${{ github.event.repository.name }}.zip" . \
-                  -x "./src/*" \
-                  -x "./src/**" \
-                  -x "./.github/*" \
-                  -x "./.github/**" \
-                  -x ".git/*" \
-                  -x ".git/**" \
-                  -x "*.txt" \
-                  -x "*.lock" \
-                  -x ".gitignore" \
-                  -x ".editorconfig"
+                  mkdir -p "${{ github.event.repository.name }}"
+                  rsync -av \
+                    --exclude='src/' \
+                    --exclude='.github/' \
+                    --exclude='.git/' \
+                    --exclude='*.txt' \
+                    --exclude='*.lock' \
+                    --exclude='.gitignore' \
+                    --exclude='.editorconfig' \
+                    ./ "${{ github.event.repository.name }}/"
+                  zip -r --symlinks "${{ github.event.repository.name }}.zip" "${{ github.event.repository.name }}"
 
             - name: Generate Release
               uses: comnoco/create-release-action@v2
