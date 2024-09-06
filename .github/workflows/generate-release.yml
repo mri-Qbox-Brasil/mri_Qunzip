@@ -25,11 +25,18 @@ jobs:
 
             - name: Install dependencies
               working-directory: ./src
-              run: npm install
+              run: |
+                  apt install -y jq
+                  npm install
 
             - name: Build project
               working-directory: ./src
-              run: npm run build
+              run: |
+                  npm run build
+                  if [ $? -ne 0 ]; then
+                    echo "Erro na compilação"
+                    exit 1
+                  fi
 
             - name: Get commit messages, version, and repository description
               id: get_project_information
@@ -46,14 +53,20 @@ jobs:
 
                   if [ -z "$COMMITS" ]; then
                     echo "Nenhuma mudança significativa desde a última release." > ./release_body.txt
+                  else
+                    echo "$COMMITS" > ./release_body.txt
                   fi
 
-                  echo "$COMMITS" > ./release_body.txt
                   echo "version=$CURRENT_TAG" >> $GITHUB_OUTPUT
 
             - name: Update version in file
               run: |
-                  sed -i "s/MRIQBOX_VERSION/${{ steps.get_project_information.outputs.version }}/g" fxmanifest.lua
+                  if [ -f fxmanifest.lua ]; then
+                      sed -i "s/MRIQBOX_VERSION/${{ steps.get_project_information.outputs.version }}/g" fxmanifest.lua
+                  else
+                      echo "Arquivo fxmanifest.lua não encontrado!"
+                      exit 1
+                  fi
 
             - name: Create ZIP file
               run: |
@@ -77,7 +90,7 @@ jobs:
               with:
                   tag_name: "${{ steps.get_project_information.outputs.version }}"
                   release_name: "${{ steps.get_project_information.outputs.version }}"
-                  body: $(cat release_body.txt)
+                  body_path: release_body.txt
                   draft: false
                   prerelease: false
 
@@ -134,6 +147,11 @@ jobs:
                       "timestamp": "'"$(date --utc +%Y-%m-%dT%H:%M:%SZ)"'"
                       }]
                   }'
+
+                  if [ -z "$DISCORD_WEBHOOK_URL" ] || [ -z "$RELEASE_URL" ] || [ -z "$RELEASE_TAG" ]; then
+                    echo "Algumas variáveis obrigatórias estão ausentes. Não será possível enviar o webhook."
+                    exit 1
+                  fi
 
                   curl -H "Content-Type: application/json" \
                       -d "$EMBED_DATA" \
