@@ -113,7 +113,7 @@ jobs:
                   RELEASE_AUTHOR: ${{ github.actor }}
               run: |
                   REPO_DESCRIPTION=$(curl -s https://api.github.com/repos/${{ github.repository }} | jq -r .description)
-
+                  RELEASE_NOTES=$(head -n 1900 release_body.txt)
                   EMBED_DATA='{
                       "embeds": [{
                       "author": {
@@ -125,7 +125,12 @@ jobs:
                       "description": "'"${REPO_DESCRIPTION}"'",
                       "fields": [{
                         "name": "O que há de novo?",
-                        "value": "[Veja as mudanças aqui](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }})"
+                        "value": "'"${RELEASE_NOTES}"'"
+                      },
+                      {
+                        "name": "Veja todas as mudanças",
+                        "value": "[Veja todas as mudanças aqui](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }})",
+                        "inline": true
                       },
                       {
                         "name": "Precisa de ajuda?",
