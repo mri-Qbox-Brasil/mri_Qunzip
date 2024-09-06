@@ -143,7 +143,7 @@ jobs:
                       },
                       {
                         "name": "Veja todas as mudanças",
-                        "value": "[Veja todas as mudanças aqui](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }})",
+                        "value": "[Veja todas as mudanças aqui](https://github.com/${{ github.repository }}/commits/${{ github.ref_name }})"
                       },
                       {
                         "name": "Precisa de ajuda?",
