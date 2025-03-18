@@ -1,24 +1,20 @@
 fx_version "cerulean"
 game "gta5"
 
-description "mri_Qbox Core"
+description "Responsável por fazer download e descompactação de arquivos .zip"
 author "MRI QBOX Team"
-discord ".mur4i"
-discord "gfive_"
 version "MRIQBOX_VERSION"
 
-ui_page "web-side/index.html"
+lua54 "yes"
 
 shared_scripts {
-	"@ox_lib/init.lua",
-	"@qbx_core/modules/playerdata.lua",
 	"config.lua",
-	"**/**/config.lua",
-	"**/**/shared/*",
+	-- "**/**/config.lua",
+	-- "**/**/shared/*",
 }
 
 server_scripts {
-    "@oxmysql/lib/MySQL.lua",
+    -- "@oxmysql/lib/MySQL.lua",
     "**/**/server/*",
     "**/**/server-side/**/*",
 }
@@ -27,10 +23,3 @@ client_scripts {
 	"**/**/client/*",
 	"**/**/client-side/**/*",
 }
-
-files {
-	"web-side/*",
-	"web-side/**/*"
-}
-
-lua54 "yes"
